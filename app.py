@@ -31,14 +31,14 @@ class Customer(database.Model):
     	self.email = email
     	self.nic = nic
     	self.telephone = telephone
-	
+
 ##Customer Schema
 class CustomerSchema(ORM.Schema):
     class Meta:
-    	fields = ('first_name', 'last_name', 'address', 'email', 'nic', 'telephone')
+    	fields = ('cus_id', 'first_name', 'last_name', 'address', 'email', 'nic', 'telephone')
 
 #Initialize Customer Schema
-customer_schema = CustomerSchema()
+customer_schema = CustomerSchema(many=True)
 
 #customer API
 
@@ -63,7 +63,9 @@ def add_customer():
 @app.route('/customers', methods=['GET'])
 def get_customers():
     all_users = Customer.query.all()
-    return customer_schema.jsonify(all_users)
+    result = customer_schema.dump(all_users)
+    print(all_users)
+    return jsonify(result)
 
 
 #start the server       
