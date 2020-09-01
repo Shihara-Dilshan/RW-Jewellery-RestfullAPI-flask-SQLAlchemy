@@ -38,7 +38,8 @@ class CustomerSchema(ORM.Schema):
     	fields = ('cus_id', 'first_name', 'last_name', 'address', 'email', 'nic', 'telephone')
 
 #Initialize Customer Schema
-customer_schema = CustomerSchema(many=True)
+customer_schema = CustomerSchema()
+customer_schema_all = CustomerSchema(many=True)
 
 #customer API
 
@@ -63,10 +64,46 @@ def add_customer():
 @app.route('/customers', methods=['GET'])
 def get_customers():
     all_users = Customer.query.all()
-    result = customer_schema.dump(all_users)
-    print(all_users)
+    result = customer_schema_all.dump(all_users)
     return jsonify(result)
+    
+##get a specific customer
+@app.route('/customer/<id>', methods=['GET'])
+def get_product(id):
+    customer = Customer.query.get(id)
+    return customer_schema.jsonify(customer)
+    
+##update a customer
+@app.route('/customer/<id>', methods=['PUT'])
+def update_customer(id):
+    customer = Customer.query.get(id)
+    
+    first_name = request.json['first_name']
+    last_name = request.json['last_name']
+    address = request.json['address']
+    email = request.json['email']
+    nic = request.json['nic']
+    telephone = request.json['telephone']
+    
+    customer.first_name = first_name
+    customer.last_name = last_name
+    customer.address = address
+    customer.email = email
+    customer.nic = nic
+    customer.telephone = telephone
 
+    database.session.commit()
+
+    return customer_schema.jsonify(customer)
+
+##delete a specific customer
+@app.route('/customer/<id>', methods=['DELETE'])
+def delete_product(id):
+    customer = Customer.query.get(id)
+    database.session.delete(customer)
+    database.session.commit()
+    
+    return customer_schema.jsonify(customer)
 
 #start the server       
 if __name__ == '__main__':
